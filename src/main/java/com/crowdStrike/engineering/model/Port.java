@@ -1,8 +1,6 @@
 package com.crowdStrike.engineering.model;
 
-import java.util.Date;
 import java.util.List;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,12 +8,8 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "port")
@@ -78,5 +72,36 @@ public class Port {
 	public void setService(String service) {
 		this.service = service;
 	}
+	
+	@Override
+	public int hashCode()
+	{
+	    final int PRIME = 31;
+	    int result = 1;
+	    result = PRIME * result + getPortNumber();
+	    result = PRIME * result + ((protocol == null) ? 0 : getProtocol().hashCode());
+	    result = PRIME * result + ((service == null) ? 0 : getService().hashCode());
+	    return result;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+	    if(o == null)
+	    {
+	        return false;
+	    }
+	    if (o == this)
+	    {
+	        return true;
+	    }
+	    if (getClass() != o.getClass())
+	    {
+	        return false;
+	    }
+	     
+	    Port port = (Port) o;
+	    return (this.getPortNumber() == port.getPortNumber() && this.getProtocol() == port.getProtocol() && this.getService() == port.getService());
+	}
+
 }
 	

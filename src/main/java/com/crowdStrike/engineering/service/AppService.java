@@ -2,10 +2,6 @@ package com.crowdStrike.engineering.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import com.crowdStrike.engineering.controller.AppController;
 import com.crowdStrike.engineering.dao.AddressDao;
 import com.crowdStrike.engineering.dao.OpenPortsDao;
 import com.crowdStrike.engineering.dao.ScanHistoryDao;
@@ -18,34 +14,21 @@ import com.crowdStrike.engineering.model.PortDisplayDTO;
 import com.crowdStrike.engineering.model.Scans;
 import com.google.common.net.InetAddresses;
 import com.google.common.net.InternetDomainName;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
 import org.nmap4j.Nmap4j;
-import org.nmap4j.core.flags.ArgumentProperties;
-import org.nmap4j.core.nmap.ExecutionResults;
-import org.nmap4j.core.nmap.NMapExecutionException;
-import org.nmap4j.core.nmap.NMapExecutor;
-import org.nmap4j.core.nmap.NMapInitializationException;
-import org.nmap4j.core.nmap.NMapProperties;
-import org.nmap4j.data.NMapRun;
-import org.nmap4j.data.nmaprun.Host;
-import org.nmap4j.parser.NMapRunHandlerImpl;
-import org.nmap4j.parser.NMapXmlHandler;
-import org.nmap4j.parser.OnePassParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,12 +44,14 @@ public class AppService {
 	@Resource
 	OpenPortsDao openPortsDao;
 
-
 	Logger logger = LoggerFactory.getLogger(AppService.class);
 	
+	List<com.crowdStrike.engineering.model.Port> currentPortsList = new ArrayList<>();
+	List<com.crowdStrike.engineering.model.Port> prevPortsList = new ArrayList<>();
+
 	public boolean isValidAddress(String address) {
 		if (!InternetDomainName.isValid(address) && !InetAddresses.isInetAddress(address)) {
-			throw new InvalidInputException("Invalid input. Please enter a valid ip address or hots name.");
+			throw new InvalidInputException("Invalid input. Please enter a valid ip address or host name.");
 		}
 		return true;
 	}
@@ -109,6 +94,7 @@ public class AppService {
 
 	@Transactional
 	public void persistToDB(String address, List<Port> portList) {
+		currentPortsList = new ArrayList<>();
 		logger.info("Persisting to database");
 		Address addressObj = addressDao.findByAddress(address);
 		if (addressObj == null) {
@@ -116,10 +102,11 @@ public class AppService {
 			addressDao.save(addressObj);
 		}
 		int addressInput = addressObj.getAddressId();
-		Integer scanId = scanHistoryDao.findLastScan(addressInput);
+		Integer lastscanId = scanHistoryDao.findLastScan(addressInput);
 		int nextScanId = 1;
-		if (scanId != null) {
-			nextScanId = scanId + 1;
+		if (lastscanId != null) {
+			nextScanId = lastscanId + 1;
+			generatePrevPortsList(lastscanId, addressObj);
 		}
 		for (Port port : portList) {
 			com.crowdStrike.engineering.model.Port openPort = openPortsDao.findPort(port.getPortid(),
@@ -129,6 +116,7 @@ public class AppService {
 						port.getService().getName());
 				openPortsDao.save(openPort);
 			}
+			currentPortsList.add(openPort);
 			Scans scanHistory = new Scans(nextScanId);
 			scanHistory.setPort(openPort);
 			scanHistory.setAddress(addressObj);
@@ -155,9 +143,9 @@ public class AppService {
 		return portListDisplay;
 	}
 	
-	public List<List<PortDisplayDTO>> generatePreviousScans(String address) {
+	public List<Map<String,List<PortDisplayDTO>>> generatePreviousScans(String address) {
 		logger.info("Getting previous history");
-		List<List<PortDisplayDTO>> previousScans = new ArrayList<>();
+		List<Map<String,List<PortDisplayDTO>>> previousScans = new ArrayList<>();
 		PortDisplayDTO portDisplayDTO = null;
 		Address addressObj = addressDao.findByAddress(address);
 		if (addressObj != null) {
@@ -174,46 +162,47 @@ public class AppService {
 					portDisplayDTO.setService(openPort.getService());
 					previousScan.add(portDisplayDTO);
 				}
-				previousScans.add(previousScan);
+				Map<String,List<PortDisplayDTO>> map = new HashMap<>();
+				map.put(scanList.get(0).getAddedDate().toString(),previousScan);
+				previousScans.add(map);
 			}
 		}
 		return previousScans;
 	}
+	
+	public void generatePrevPortsList(int lastscanId, Address address){
+		prevPortsList = new ArrayList<>();
+		List<Scans> scanList = scanHistoryDao.getAllScans(lastscanId, address);
+		for (Scans scan : scanList) {		
+			prevPortsList.add(scan.getPort());
+		}
+	}		
+	
+	public List<PortDisplayDTO> getNewPortsList(){		
+		List<PortDisplayDTO> newPortsDisplayDTO = new ArrayList<PortDisplayDTO>();
+		ArrayList<com.crowdStrike.engineering.model.Port> newPortsList = new ArrayList<>(currentPortsList);
+		newPortsList.removeAll(prevPortsList);	
+		for (com.crowdStrike.engineering.model.Port newPort : newPortsList) {
+			PortDisplayDTO portDisplayDTO = new PortDisplayDTO();
+			portDisplayDTO.setPortId(newPort.getPortNumber());
+			portDisplayDTO.setProtocol(newPort.getProtocol());
+			portDisplayDTO.setService(newPort.getService());
+			newPortsDisplayDTO.add(portDisplayDTO);
+		}
+		return newPortsDisplayDTO;
+	}
+	
+	public List<PortDisplayDTO> getRemovedPortsList(){
+		List<PortDisplayDTO> removedDisplayDTO = new ArrayList<PortDisplayDTO>();
+		prevPortsList.removeAll(currentPortsList);
+		for (com.crowdStrike.engineering.model.Port newPort : prevPortsList) {
+			PortDisplayDTO portDisplayDTO = new PortDisplayDTO();
+			portDisplayDTO.setPortId(newPort.getPortNumber());
+			portDisplayDTO.setProtocol(newPort.getProtocol());
+			portDisplayDTO.setService(newPort.getService());
+			removedDisplayDTO.add(portDisplayDTO);
+		}
+		return removedDisplayDTO;
+	}
+	
 }
-/*
- * //NMapRun nmapRun1 = nmap4j.getResult() ; OnePassParser opp = new
- * OnePassParser() ; //NMapRun nmapRun1 = opp.parse( nmapRun,
- * OnePassParser.STRING_INPUT ) ; //ArrayList<Host> hosts=nmapRun1.getHosts();
- * //System.out.println( hosts.get(0).getAddress().getVendor() ) ;
- * //OnePassParser parser = new OnePassParser(); //NMapRun nmapRun1 =
- * parser.parse(nmap4j.getExecutionResults().getOutput(),
- * OnePassParser.STRING_INPUT);
- * 
- * //ArrayList<Host> hosts=nmapRun.getHosts();
- * 
- * StringReader strReader = new StringReader( nmapRun ) ;
- * 
- * InputSource source = new InputSource (strReader ) ; SAXParserFactory spf =
- * SAXParserFactory.newInstance(); SAXParser sp; try { sp = spf.newSAXParser();
- * 
- * NMapRunHandlerImpl nmrh = new NMapRunHandlerImpl() ; NMapXmlHandler nmxh =
- * new NMapXmlHandler( nmrh ) ;
- * 
- * sp.parse( source, nmxh ); } catch (SAXException | IOException e) { // TODO
- * Auto-generated catch block e.printStackTrace(); }catch
- * (ParserConfigurationException e) { // TODO Auto-generated catch block
- * e.printStackTrace(); }
- */
-
-// OnePassParser opp = new OnePassParser() ;
-// NMapRun nmapRun11 = opp.parse( nmapRun, OnePassParser.STRING_INPUT ) ;
-// ArrayList<Host> hosts=nmapRun11.getHosts();
-// System.out.println( hosts.get(0).getAddress().getVendor() ) ;
-// System.out.println( hosts.get(0).getAddress().getVendor() ) ;
-/*
- * Nmap4j nmap4j = new Nmap4j( "/usr/local" ) ;
- * nmap4j.includeHosts("192.168.1.1" ); nmap4j.addFlags( "-T3 -oX - -O -sV" );
- * nmap4j.execute(); if( !nmap4j.hasError()) { NMapRun nmapRun =
- * nmap4j.getResult() ; } else { System.out.println(
- * nmap4j.getExecutionResults().getErrors() ) ; }
- */

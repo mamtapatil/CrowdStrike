@@ -11,6 +11,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
@@ -34,6 +36,7 @@ public class Scans {
 	@Column(name = "scan_id")
 	private int scanId;
 	
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "added_date")
 	private Date addedDate;
 

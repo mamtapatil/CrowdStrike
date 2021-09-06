@@ -63,9 +63,6 @@ To run the JUnit test cases, right click on the AppControllerTest.java and selec
   
 <hr>
   
-<h3>Docker image</h3>
-mamtapatil/crowdstrike
-  
 <h3>Packaging Layout</h3>
 <hr>
 <pre>

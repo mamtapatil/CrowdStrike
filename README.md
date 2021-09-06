@@ -6,11 +6,9 @@ This is a web service that displays the open ports for a given ipaddress/hostnam
 <br>
 
 <h3>HTTP Endpoint</h3>
-  UI <br>
-http://localhost:8080
+  UI  - http://localhost:8080
 <br>
-  To get the history in JSON format<br>
-  http://localhost:8080/getPortHistory.json?address=<input>
+  To get the history in JSON format - http://localhost:8080/getPortHistory.json?address=<input>
 
 <h3>Prerequisites</h3>
 <hr>

@@ -19,7 +19,9 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'com.google.guava:guava:16.0.1'
-
+	implementation files('libs/org.nmap4j-1.1.0-javadoc.jar')
+	implementation files('libs/org.nmap4j-1.1.0-sources.jar')
+	implementation files('libs/org.nmap4j-1.1.0.jar')
 }
 
 test {

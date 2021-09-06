@@ -93,6 +93,32 @@
 		        </div>
 	  		</div>
 		</div>
+		
+		<div class="row" th:if="${ not#lists.isEmpty(multiplePortList)}">
+	    		<p style="text-align: center;font-size: 120%;color: brown; font-weight: bold;"></p>
+	  		<div th:each="portList : ${multiplePortList}">
+	  			<div class="col-sm-4">
+	  				<p>Address : <span th:text="${portList[0].address}"></span></p>
+	  				<div th:if="${portList[0].error == null}">
+			  			<table class="table table-striped table-condensed table-bordered">
+				        		<tr>
+				              <th style="text-align:center">Port</th>
+				              <th style="text-align:center">Protocol</th>
+				              <th style="text-align:center">Service</th>
+				            </tr>
+				            <tr th:each="port : ${portList}">
+				              <td th:text="${port.portId}"></td>
+				              <td th:text="${port.protocol}"></td>
+				              <td th:text="${port.service}"></td>
+				            </tr>
+			          	</table>
+			         </div>
+			         <div th:if="${portList[0].error != null}">
+			         	<p th:text="${portList[0].error}"></p>
+			         </div>
+		        </div>
+	  		</div>
+		</div>
 	</div>
 </body>
 </html>

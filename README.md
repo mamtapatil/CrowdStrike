@@ -1,16 +1,15 @@
 # CrowdStrike
 
-<h2>Take home project/h2>
+<h2>Take home project</h2>
 
-This is a web service that displays the open ports for a given ipaddress/hostname .
+This is a web service that displays the open ports for a given ipaddress/hostname.
 <br>
 
 <h3>HTTP Endpoint</h3>
-  UI
+  UI <br>
 http://localhost:8080
-<br><br>
-
-  To get the history in JSON format
+<br>
+  To get the history in JSON format<br>
   http://localhost:8080/getPortHistory.json?address=<input>
 
 <h3>Prerequisites</h3>
@@ -28,10 +27,10 @@ http://localhost:8080
 Import the project as a gradle project using the Githib repo link.<br> Right click on the project and click Java Build Path <br> Select the Libraries tab and click on Add Library button present on the left <br> Select JUnit and on the next box select JUnit5 and click finish.
 
 The project can be run by follwoing two ways
-* Right click on the AEMApplication.java present in com.adobe.aem package and selct Run As -> Java application. The console tab should display all the logs.
+* Right click on the EngineeringApplication.java present in com.crowdstrike.engineering package and selct Run As -> Java application. The console tab should display all the logs.
 * Run this command in the terminal./gradlew bootRun
 
-To run the JUnit test cases, right click on the RomanNumeralControllerTest.java and select Run As -> JUnit test. The result would be displayed in the JUnit tab.
+To run the JUnit test cases, right click on the AppControllerTest.java and select Run As -> JUnit test. The result would be displayed in the JUnit tab.
 
 <h3>Database schema</h3>
 <hr>
@@ -42,7 +41,7 @@ To run the JUnit test cases, right click on the RomanNumeralControllerTest.java 
   `ip_address` varchar(40) NOT NULL,
   `added_date` date DEFAULT NULL,
   PRIMARY KEY (`address_id`))
-   
+ 
   <h4> Port </h4> <br>
     CREATE TABLE `port` (
   `port_id` int NOT NULL AUTO_INCREMENT,

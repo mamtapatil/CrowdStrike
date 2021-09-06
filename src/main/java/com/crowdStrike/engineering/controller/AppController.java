@@ -1,5 +1,6 @@
 package com.crowdStrike.engineering.controller;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -34,29 +35,56 @@ public class AppController {
 	}
 	
 	@RequestMapping(value="/getOpenPorts",method=RequestMethod.GET)
-	public ModelAndView getOpenPorts(@RequestParam(value = "address", required = true) String address) {
+	public ModelAndView getOpenPorts(@RequestParam(value = "address", required = true) String address) throws Exception {
 		ModelAndView mv = new ModelAndView();
 		logger.info("Address provided " + address);
-		appService.isValidAddress(address);
-		List<Map<String,List<PortDisplayDTO>>> previousScans = appService.generatePreviousScans(address);
-		if (previousScans != null && !previousScans.isEmpty()) {
-			mv.getModel().put("previousScans", previousScans);
-		}
-		List<PortDisplayDTO> portList = appService.getOpenPorts(address);
-		if (portList != null && !portList.isEmpty()) {
-			mv.getModel().put("portList", portList);
-		}
-		List<PortDisplayDTO> newPortList = appService.getNewPortsList();
-		if (newPortList != null && !newPortList.isEmpty()) {
-			mv.getModel().put("newPortList", newPortList);
-		}
-		List<PortDisplayDTO> removedPortList = appService.getRemovedPortsList();
-		if (removedPortList != null && !removedPortList.isEmpty()) {
-			mv.getModel().put("removedPortList", removedPortList);
+		String[] addressList = address.split(",");
+		if (addressList.length > 1) {
+			for (String addr: addressList) {
+				appService.isValidAddress(addr.trim());
+			}
+			List<List<PortDisplayDTO>> multiplePortList = appService.getOpenPortsMultiple(addressList);
+			if (!multiplePortList.contains(Collections.EMPTY_LIST) && !multiplePortList.contains(null)) {
+				mv.getModel().put("multiplePortList", multiplePortList);
+			}
+		} else {
+			appService.isValidAddress(address);
+			List<Map<String,List<PortDisplayDTO>>> previousScans = appService.generatePreviousScans(address);
+			if (previousScans != null && !previousScans.isEmpty()) {
+				mv.getModel().put("previousScans", previousScans);
+			}
+			List<PortDisplayDTO> portList = appService.getOpenPorts(address);
+			if (portList != null && !portList.isEmpty()) {
+				mv.getModel().put("portList", portList);
+			}
+			List<PortDisplayDTO> newPortList = appService.getNewPortsList();
+			if (newPortList != null && !newPortList.isEmpty()) {
+				mv.getModel().put("newPortList", newPortList);
+			}
+			List<PortDisplayDTO> removedPortList = appService.getRemovedPortsList();
+			if (removedPortList != null && !removedPortList.isEmpty()) {
+				mv.getModel().put("removedPortList", removedPortList);
+			}
 		}
 		mv.setViewName("app.html");
 		return mv;	
 	}
+	
+	/*@RequestMapping(value="/getOpenPortsMultiple",method=RequestMethod.GET)
+	public ModelAndView getOpenPortsMultiple(@RequestParam(value = "address", required = true) String address) throws Exception {
+		ModelAndView mv = new ModelAndView();
+		logger.info("Address provided " + address);
+		String[] addressList = address.split(",");
+		for (String addr: addressList) {
+			appService.isValidAddress(addr.trim());
+		}
+		List<List<PortDisplayDTO>> multiplePortList = appService.getOpenPortsMultiple(addressList);
+		if (!multiplePortList.contains(Collections.EMPTY_LIST) && !multiplePortList.contains(null)) {
+			mv.getModel().put("multiplePortList", multiplePortList);
+		}
+		mv.setViewName("app.html");
+		return mv;	
+	}*/
 	
 	@RequestMapping(value="/getPortHistory.json",method=RequestMethod.GET, produces = "application/json")
 	@ResponseBody

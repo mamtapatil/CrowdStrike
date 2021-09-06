@@ -8,6 +8,10 @@ public class PortDisplayDTO {
 	
 	String service;
 
+	String address;
+	
+	String error;
+	
 	public int getPortId() {
 		return portId;
 	}
@@ -31,5 +35,22 @@ public class PortDisplayDTO {
 	public void setService(String service) {
 		this.service = service;
 	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public String getError() {
+		return error;
+	}
+
+	public void setError(String error) {
+		this.error = error;
+	}
+	
 	
 }

@@ -20,4 +20,5 @@ public interface ScanHistoryDao extends CrudRepository<Scans, Integer> {
 	 
 	 @Query(value="SELECT s FROM Scans s WHERE s.scanId = :scanId and s.address = :address")
 	 List<Scans> getAllScans(@Param("scanId") int scanId, @Param("address") Address address);
+	 
 }

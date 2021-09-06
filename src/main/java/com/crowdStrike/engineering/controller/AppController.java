@@ -1,6 +1,8 @@
 package com.crowdStrike.engineering.controller;
 
 import java.util.List;
+import java.util.Map;
+
 import javax.annotation.Resource;
 
 import org.slf4j.Logger;
@@ -28,7 +30,7 @@ public class AppController {
 	
 	@RequestMapping(path="/")
 	public String home() {
-		return "index";	
+		return "app";	
 	}
 	
 	@RequestMapping(value="/getOpenPorts",method=RequestMethod.GET)
@@ -36,13 +38,21 @@ public class AppController {
 		ModelAndView mv = new ModelAndView();
 		logger.info("Address provided " + address);
 		appService.isValidAddress(address);
-		List<List<PortDisplayDTO>> previousScans = appService.generatePreviousScans(address);
+		List<Map<String,List<PortDisplayDTO>>> previousScans = appService.generatePreviousScans(address);
 		if (previousScans != null && !previousScans.isEmpty()) {
 			mv.getModel().put("previousScans", previousScans);
 		}
 		List<PortDisplayDTO> portList = appService.getOpenPorts(address);
 		if (portList != null && !portList.isEmpty()) {
 			mv.getModel().put("portList", portList);
+		}
+		List<PortDisplayDTO> newPortList = appService.getNewPortsList();
+		if (newPortList != null && !newPortList.isEmpty()) {
+			mv.getModel().put("newPortList", newPortList);
+		}
+		List<PortDisplayDTO> removedPortList = appService.getRemovedPortsList();
+		if (removedPortList != null && !removedPortList.isEmpty()) {
+			mv.getModel().put("removedPortList", removedPortList);
 		}
 		mv.setViewName("app.html");
 		return mv;	
@@ -58,7 +68,7 @@ public class AppController {
 			mv.getModel().put("error", ex.getMessage());
 			return mv.getModelMap();
 		}
-		List<List<PortDisplayDTO>> previousScans = appService.generatePreviousScans(address);
+		List<Map<String,List<PortDisplayDTO>>> previousScans = appService.generatePreviousScans(address);
 		if (previousScans != null && !previousScans.isEmpty()) {
 			mv.getModel().put("data", previousScans);
 		}

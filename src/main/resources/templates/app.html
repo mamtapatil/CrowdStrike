@@ -1,0 +1,65 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Port History</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+</head>
+<body>
+	<div class="jumbotron text-center">
+		<h3>Open Port Detector</h3>
+		<p>Enter the ip address or hostname</p>
+		<form th:action="@{/getOpenPorts}" method="get">
+			<input type="text" th:name="address" /> <input type="submit" />
+		</form>
+		<div style="margin: 10px;"th:if="${error != null}">
+			<p th:text="${error}"></p>
+		</div>
+	</div>
+	
+
+    <div class = "container">
+    		<div class = "row text-center" style="width:50%" th:if="${ not#lists.isEmpty(portList)}">
+	    		<table class="table table-striped table-condensed table-bordered">
+	        		<tr>
+	              <th style="text-align:center">Port</th>
+	              <th style="text-align:center">Protocol</th>
+	              <th style="text-align:center">Service</th>
+	            </tr>
+	            <tr th:each="port : ${portList}">
+	              <td th:text="${port.portId}"></td>
+	              <td th:text="${port.protocol}"></td>
+	              <td th:text="${port.service}"></td>
+	            </tr>
+	          </table>
+    		</div>
+    
+	    <div class="row" th:if="${ not#lists.isEmpty(previousScans)}">
+	    		<h4> Previous Scans (Newest to Oldest)</h4>
+	  		<div th:each="previousScan : ${previousScans}">
+	  			<div class="col-sm-4" style="padding:0">
+		  			<table class="table table-striped table-condensed table-bordered">
+		        		<tr>
+		              <th style="text-align:center">Port</th>
+		              <th style="text-align:center">Protocol</th>
+		              <th style="text-align:center">Service</th>
+		            </tr>
+		            <tr th:each="port : ${previousScan}">
+		              <td th:text="${port.portId}"></td>
+		              <td th:text="${port.protocol}"></td>
+		              <td th:text="${port.service}"></td>
+		            </tr>
+		          </table>
+		        </div>
+	  		</div>
+		</div>
+	</div>
+	
+</body>
+</html>

@@ -15,20 +15,17 @@ This is a web service that displays the open ports for a given ipaddress/hostnam
 
 * Eclipse IDE
 * Java 8
-* JUnit5
 * Gradle
 * MySQL
 
 <h3>Eclipse Instructions</h3>
 <hr>
 
-Import the project as a gradle project using the Githib repo link.<br> Right click on the project and click Java Build Path <br> Select the Libraries tab and click on Add Library button present on the left <br> Select JUnit and on the next box select JUnit5 and click finish.
+Import the project as a gradle project using the Githib repo link.<br>.
 
 The project can be run by follwoing two ways
 * Right click on the EngineeringApplication.java present in com.crowdstrike.engineering package and selct Run As -> Java application. The console tab should display all the logs.
 * Run this command in the terminal./gradlew bootRun
-
-To run the JUnit test cases, right click on the AppControllerTest.java and select Run As -> JUnit test. The result would be displayed in the JUnit tab.
 
 <h3>Database schema</h3>
 <hr>

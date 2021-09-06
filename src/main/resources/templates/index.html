@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Port History</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+</head>
+<body>
+	<div class="jumbotron text-center">
+		<h3>Open Port Detector</h3>
+		<p>Enter the ip address or hostname</p>
+		<form th:action="@{/getOpenPorts}" method="get">
+			<input type="text" th:name="address" /> <input type="submit" />
+		</form>
+	</div>
+</body>
+</html>

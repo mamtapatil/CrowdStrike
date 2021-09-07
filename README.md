@@ -39,16 +39,13 @@ CREATE TABLE `address` (
   KEY `ip_address_index` (`ip_address`)
  
   <h4> Port </h4> <br>
-    CREATE TABLE `port` (
+CREATE TABLE `port` (
   `port_id` int NOT NULL AUTO_INCREMENT,
   `port_number` int NOT NULL,
   `protocol` varchar(40) NOT NULL,
   `service` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`port_id`),
-  KEY `port_number_index` (`port_number`),
-  KEY `protocol_index` (`protocol`),
-  KEY `service_index` (`service`)
-)
+  KEY `port_index` (`port_number`,`protocol`,`service`))
   
    <h4> Scans </h4> <br>
   CREATE TABLE `scans` (

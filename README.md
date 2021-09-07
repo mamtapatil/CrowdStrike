@@ -31,11 +31,12 @@ The project can be run by follwoing two ways
 <hr>
   
  <h4> Address </h4> <br>
-   CREATE TABLE `address` (
+CREATE TABLE `address` (
   `address_id` int NOT NULL AUTO_INCREMENT,
   `ip_address` varchar(40) NOT NULL,
   `added_date` date DEFAULT NULL,
-  PRIMARY KEY (`address_id`))
+  PRIMARY KEY (`address_id`),
+  KEY `ip_address_index` (`ip_address`)
  
   <h4> Port </h4> <br>
     CREATE TABLE `port` (
@@ -55,8 +56,9 @@ The project can be run by follwoing two ways
   PRIMARY KEY (`scan_history_id`),
   KEY `FK_User` (`address_id`),
   KEY `FK_Port` (`port_id`),
+  KEY `scan_id_index` (`scan_id`),
   CONSTRAINT `FK_Port` FOREIGN KEY (`port_id`) REFERENCES `port` (`port_id`),
-  CONSTRAINT `FK_User` FOREIGN KEY (`address_id`) REFERENCES `address` (`address_id`))
+  CONSTRAINT `FK_User` FOREIGN KEY (`address_id`) REFERENCES `address` (`address_id`)
   
 <hr>
   
